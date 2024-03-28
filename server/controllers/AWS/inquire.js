@@ -1,11 +1,15 @@
 const axios = require('axios');
 
-async function AWS_EC2(url,location) {
+async function AWS_EC2(url,location,term) {
   try {
-    // const url = `https://calculator.aws/pricing/2.0/meteredUnitMaps/computesavingsplan/USD/current/compute-instance-savings-plan-ec2-calc/${instance}/${location}/${os}/NA/Shared/index.json`;
-    // console.log(url)
+    const term_price_string=`EC2InstanceSavingsPlans ${term} No Upfront`
     const response = await axios(url);
-    return response.data.regions[location]['EC2InstanceSavingsPlans 3 year No Upfront'].price * 730;
+    console.log('[+]',response.data.regions[location]['EC2InstanceSavingsPlans 3 year No Upfront'].price*730)
+    let price=0
+   
+    price = response.data.regions[location][term_price_string].price * 730;
+  
+    return price
   } catch (error) {
     console.error('Error fetching AWS EC2 pricing data:');
     throw error;
@@ -14,7 +18,6 @@ async function AWS_EC2(url,location) {
 
 async function RDS_SQL_server(url,location) {
   try {
-    // const url = `https://calculator.aws/pricing/2.0/meteredUnitMaps/rds/USD/current/rds-sqlserver-calc/US%20East%20(N.%20Virginia)/OnDemand/License%20included/db.m5.large/2/8%20GiB/Multi-AZ/Standard/index.json`;
     const response = await axios(url);
     return response.data.regions[location]['OnDemand License included db.m5.large Multi-AZ Standard Hrs'].price * 730;
   } catch (error) {
@@ -23,20 +26,22 @@ async function RDS_SQL_server(url,location) {
   }
 }
 
-async function calculatePrices(products) {
+async function calculatePrices(products,term) {
   let sum=0
+
   for (const product of products) {
     console.log(product.name,product.instance);
     let price;
     if (product.name === "EC2") {
-      price = await AWS_EC2(product.url,product.location);
+      price = await AWS_EC2(product.url,product.location,term);
       sum=sum+price
     } else {
       price = await RDS_SQL_server(product.url,product.location);
       sum=sum+price
 
     }
-    console.log(`Price for ${product.name}: ${price}`);
+    console.log(term)
+    console.log(`Price for ${product.name} ${term}: ${price}`);
   }
   return sum
 }
@@ -92,8 +97,8 @@ const products = [
 ];
 
 
-async function GetAllPrice(){
-  const tp=await calculatePrices(products)
+async function GetAllPrice(prod){
+  const tp=await calculatePrices(products,prod.term)
   return tp;
 }
 

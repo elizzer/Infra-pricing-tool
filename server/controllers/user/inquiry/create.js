@@ -25,16 +25,16 @@ async function createInquiry(req,res){
 
         let totalPrice=0
 
-        for (const product of products) {
-            if (product.name === 'Product1') {
-              totalPrice += await AWS_GETS();
-            } else {
-              totalPrice += 0;
-            }
-          }
+        // for (const product of products) {
+        //     if (product.name === 'Product1') {
+        //       totalPrice += await AWS_GETS(product);
+        //     } else {
+        //       totalPrice += 0;
+        //     }
+        //   }
 
-        console.log("[+]Total price ",totalPrice)
-        totalPrice=totalPrice.toFixed(4)
+        // console.log("[+]Total price ",totalPrice)
+        // totalPrice=totalPrice.toFixed(4)
         const newInquiry = new Inquiry({
             userId,
             cloudProvider,
